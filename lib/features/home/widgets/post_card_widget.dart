@@ -9,10 +9,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
-  const PostCard({super.key, required this.post, required this.showReposted});
+  const PostCard({
+    super.key,
+    required this.post,
+    required this.showReposted,
+    required this.isLiked,
+    required this.onLikeToggle,
+  });
 
   final Posts post;
   final bool showReposted;
+  final bool isLiked;
+  final VoidCallback onLikeToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -174,9 +182,10 @@ class PostCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _ReactionItem(
-                        icon: Icons.favorite_border,
-                        count: post.reactions?.likes ?? 0,
+                      _LikeReactionItem(
+                        initialLikeCount: post.reactions?.likes ?? 0,
+                        isLiked: isLiked,
+                        onTap: onLikeToggle,
                       ),
                       const SizedBox(width: 16),
                       _ReactionItem(
@@ -353,27 +362,63 @@ class _PostBody extends StatelessWidget {
   }
 }
 
-class _ReactionItem extends StatelessWidget {
-  const _ReactionItem({required this.icon, required this.count});
+class _LikeReactionItem extends StatelessWidget {
+  const _LikeReactionItem({
+    required this.initialLikeCount,
+    required this.isLiked,
+    required this.onTap,
+  });
 
-  final IconData icon;
-  final int count;
+  final int initialLikeCount;
+  final bool isLiked;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: AppColors.secondoryText),
-        const SizedBox(width: 4),
-        Text(
-          _formatCount(count),
-          style: AppTextStyle.regularStyle(
-            fontSize: 12,
-            color: AppColors.secondoryText,
-          ),
+    return _ReactionItem(
+      icon: isLiked ? Icons.favorite : Icons.favorite_border,
+      count: initialLikeCount + (isLiked ? 1 : 0),
+      iconColor: isLiked ? AppColors.primary : AppColors.secondoryText,
+      onTap: onTap,
+    );
+  }
+}
+
+class _ReactionItem extends StatelessWidget {
+  const _ReactionItem({
+    required this.icon,
+    required this.count,
+    this.iconColor = AppColors.secondoryText,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final int count;
+  final Color iconColor;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: iconColor),
+            const SizedBox(width: 4),
+            Text(
+              _formatCount(count),
+              style: AppTextStyle.regularStyle(
+                fontSize: 12,
+                color: AppColors.secondoryText,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

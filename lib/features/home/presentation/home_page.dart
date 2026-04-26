@@ -16,11 +16,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     context.read<FeedBloc>().add(const GetLocationEvent());
     context.read<FeedBloc>().add(const GetFeedEvent());
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      context.read<FeedBloc>().add(const LoadMoreFeedEvent());
+    }
   }
 
   @override
@@ -121,6 +139,7 @@ class _HomePageState extends State<HomePage> {
                       }
 
                       final posts = state.posts;
+                      final totalItems = posts.length + (state.isLoadingMore ? 1 : 0);
 
                       return RefreshIndicator(
                         color: AppColors.primary,
@@ -129,14 +148,32 @@ class _HomePageState extends State<HomePage> {
                           feedBloc.add(const GetFeedEvent());
                         },
                         child: ListView.separated(
+                          controller: _scrollController,
                           padding: const EdgeInsets.only(top: 8, bottom: 124),
-                          itemCount: posts.length,
+                          itemCount: totalItems,
                           separatorBuilder: (context, index) =>
                               SizedBox(height: 10),
                           itemBuilder: (context, index) {
+                            if (index >= posts.length) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                ),
+                              );
+                            }
+                            final postId = posts[index].id ?? index;
                             return PostCard(
                               post: posts[index],
                               showReposted: index == 0,
+                              isLiked: state.likedPostIds.contains(postId),
+                              onLikeToggle: () => context.read<FeedBloc>().add(
+                                TogglePostLikeEvent(postId: postId),
+                              ),
                             );
                           },
                         ),

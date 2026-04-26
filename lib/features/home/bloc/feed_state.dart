@@ -8,12 +8,34 @@ class FeedLoading extends FeedState {
 }
 
 class FeedSuccess extends FeedState {
-  const FeedSuccess({required this.posts});
+  const FeedSuccess({
+    required this.posts,
+    this.likedPostIds = const <int>{},
+    this.isLoadingMore = false,
+    this.hasReachedMax = false,
+  });
 
   final List<Posts> posts;
+  final Set<int> likedPostIds;
+  final bool isLoadingMore;
+  final bool hasReachedMax;
+
+  FeedSuccess copyWith({
+    List<Posts>? posts,
+    Set<int>? likedPostIds,
+    bool? isLoadingMore,
+    bool? hasReachedMax,
+  }) {
+    return FeedSuccess(
+      posts: posts ?? this.posts,
+      likedPostIds: likedPostIds ?? this.likedPostIds,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+    );
+  }
 
   @override
-  List<Object?> get props => [posts];
+  List<Object?> get props => [posts, likedPostIds, isLoadingMore, hasReachedMax];
 }
 
 class FeedError extends FeedState {
