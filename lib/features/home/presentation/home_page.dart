@@ -21,8 +21,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<FeedBloc>().add(const GetLocationEvent());
     context.read<FeedBloc>().add(const GetFeedEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<FeedBloc>().add(const GetLocationEvent());
+    });
     _scrollController.addListener(_onScroll);
   }
 
@@ -139,7 +142,8 @@ class _HomePageState extends State<HomePage> {
                       }
 
                       final posts = state.posts;
-                      final totalItems = posts.length + (state.isLoadingMore ? 1 : 0);
+                      final totalItems =
+                          posts.length + (state.isLoadingMore ? 1 : 0);
 
                       return RefreshIndicator(
                         color: AppColors.primary,
@@ -161,7 +165,9 @@ class _HomePageState extends State<HomePage> {
                                   child: SizedBox(
                                     height: 22,
                                     width: 22,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 ),
                               );

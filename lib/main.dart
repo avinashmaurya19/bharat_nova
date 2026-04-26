@@ -7,6 +7,7 @@ import 'features/home/bloc/feed_bloc.dart';
 import 'features/home/data/feed_repository.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const BharatNovaApp());
 }
 

@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:geocoding/geocoding.dart' show placemarkFromCoordinates;
 import 'package:location/location.dart';
 
 class LocationService {
   Future<String> requestPermissionsAndResolveCity() async {
     final location = Location();
+    log("avi location service");
     var serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
@@ -28,10 +31,7 @@ class LocationService {
       return 'Unknown';
     }
 
-    final places = await placemarkFromCoordinates(
-      latitude,
-      longitude,
-    );
+    final places = await placemarkFromCoordinates(latitude, longitude);
 
     if (places.isEmpty) {
       return 'Unknown';
