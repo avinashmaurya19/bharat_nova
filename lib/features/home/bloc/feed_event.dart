@@ -1,0 +1,18 @@
+part of 'feed_bloc.dart';
+
+sealed class FeedEvent extends Equatable {
+  const FeedEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class GetFeedEvent extends FeedEvent {
+  const GetFeedEvent();
+}
+
+class GetLocationEvent extends FeedEvent {
+  const GetLocationEvent();
+}
+
+
