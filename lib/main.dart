@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bharat_nova/widgets/app_colors.dart';
+import 'package:bharat_nova/routes.dart';
 
 import 'features/home/bloc/feed_bloc.dart';
 import 'features/home/data/feed_repository.dart';
-import 'features/home/presentation/bottom_nav_page.dart';
 
 void main() {
   runApp(const BharatNovaApp());
@@ -21,7 +21,7 @@ class BharatNovaApp extends StatelessWidget {
         builder: (context) {
           return BlocProvider(
             create: (_) => FeedBloc(context.read<FeedRepository>()),
-            child: MaterialApp(
+            child: MaterialApp.router(
               debugShowCheckedModeBanner: false,
               title: 'BharatNova',
               theme: ThemeData(
@@ -29,7 +29,7 @@ class BharatNovaApp extends StatelessWidget {
                 scaffoldBackgroundColor: AppColors.background,
                 useMaterial3: true,
               ),
-              home: const BottomNavPage(),
+              routerConfig: appRouter,
             ),
           );
         },

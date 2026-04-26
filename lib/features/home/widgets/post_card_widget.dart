@@ -26,6 +26,8 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageUrl =
         'https://picsum.photos/id/${(post.id ?? 0 % 50) + 10}/700/450';
+    const int totalMediaItems = 4;
+    final int activeMediaIndex = (post.id ?? 0) % totalMediaItems;
 
     return Container(
       color: AppColors.white,
@@ -145,7 +147,7 @@ class PostCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '3/10',
+                            '${activeMediaIndex + 1}/$totalMediaItems',
                             style: AppTextStyle.mediumStyle(
                               fontSize: 11,
                               color: AppColors.white,
@@ -157,25 +159,6 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (index) {
-                    final isActive = index == 0;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: isActive ? 7 : 6,
-                      height: isActive ? 7 : 6,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? AppColors.primary
-                            : AppColors.borderColor,
-                        shape: BoxShape.circle,
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 12),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -227,6 +210,31 @@ class PostCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(totalMediaItems, (index) {
+              final distance = (index - activeMediaIndex).abs();
+              final bool isActive = distance == 0;
+              final double dotSize = switch (distance) {
+                0 => 9,
+                1 => 7,
+                2 => 6,
+                _ => 5,
+              };
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: dotSize,
+                height: dotSize,
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.primary : AppColors.borderColor,
+                  shape: BoxShape.circle,
+                ),
+              );
+            }),
+          ),
         ],
       ),
     );
@@ -244,40 +252,17 @@ class PostUserRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 40,
-          height: 40,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.borderColor,
-                backgroundImage: CachedNetworkImageProvider(
-                  'https://i.pravatar.cc/100?img=${(userId % 20) + 1}',
-                  errorListener: (error) {
-                    log('Error loading avatar: $error');
-                  },
-                ),
-              ),
-              Positioned(
-                right: -2,
-                bottom: -2,
-                child: Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.verified_rounded,
-                    size: 14,
-                    color: Color(0xFF1D9BF0),
-                  ),
-                ),
-              ),
-            ],
+          width: 55,
+          height: 55,
+          child: CircleAvatar(
+            radius: 20,
+            backgroundColor: AppColors.borderColor,
+            backgroundImage: CachedNetworkImageProvider(
+              'https://i.pravatar.cc/100?img=${(userId % 20) + 1}',
+              errorListener: (error) {
+                log('Error loading avatar: $error');
+              },
+            ),
           ),
         ),
         const SizedBox(width: 10),
