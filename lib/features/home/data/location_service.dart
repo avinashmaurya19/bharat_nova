@@ -1,35 +1,32 @@
 import 'dart:developer';
 
 import 'package:geocoding/geocoding.dart' show placemarkFromCoordinates;
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LocationService {
   Future<String> requestPermissionsAndResolveCity() async {
-    final location = Location();
     log("avi location service");
-    var serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
+    var permissionGranted = await Geolocator.checkPermission();
+    if (permissionGranted == LocationPermission.denied) {
+      permissionGranted = await Geolocator.requestPermission();
     }
-
-    if (!serviceEnabled) {
-      return 'Location Off';
+    if (permissionGranted == LocationPermission.denied) {
+      return 'Permission Needed';
     }
-
-    var permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-    }
-    if (permissionGranted != PermissionStatus.granted) {
+    if (permissionGranted == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
       return 'Permission Needed';
     }
 
-    final locationData = await location.getLocation();
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return 'Location Off';
+    }
+
+    final locationData = await Geolocator.getCurrentPosition();
     final latitude = locationData.latitude;
     final longitude = locationData.longitude;
-    if (latitude == null || longitude == null) {
-      return 'Unknown';
-    }
 
     final places = await placemarkFromCoordinates(latitude, longitude);
 
